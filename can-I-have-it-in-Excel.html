@@ -1,1 +1,90 @@
-hello
+<div id="result" class="">
+    <p id="OutputText"></p></a>
+</div>
+<script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const datasetID_param = urlParams.get('datasetID')
+    const datasetIDregex = /^(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
+    const table_param = urlParams.get('table')
+    const result = document.getElementById('result');
+    const OutputText = document.getElementById('OutputText');
+    const daxQuery = function () {
+        let result;
+        if (table_param.toLowerCase().includes("evaluate") == true) {
+            result = table_param.replace(/\n/g, "&#10;&#13;");
+        } else {
+            result = 'evaluate ' + table_param.replace(/\n/g, "&#10;&#13;");
+        }
+        return result;
+    }
+    const getFileText = function () {
+        return `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=Content-Type content="text/x-ms-odc; charset=utf-8">
+<meta name=ProgId content=ODC.Table>
+<meta name=SourceType content=OLEDB>
+<title>Connection</title>
+<xml id=docprops>
+  <o:DocumentProperties xmlns:o="urn:schemas-microsoft-com:office:office" xmlns="http://www.w3.org/TR/REC-html40">
+    <o:Name>Connection</o:Name>
+  </o:DocumentProperties>
+</xml>
+<xml id=msodc>
+  <odc:OfficeDataConnection xmlns:odc="urn:schemas-microsoft-com:office:odc" xmlns="http://www.w3.org/TR/REC-html40">
+    <odc:Connection odc:Type="OLEDB">
+      <odc:ConnectionString>Provider=MSOLAP.8;
+      Integrated Security=ClaimsToken;
+      Persist Security Info=True;
+      Initial Catalog=sobe_wowvirtualserver-${datasetID_param};
+      Data Source=pbiazure://api.powerbi.com;
+      MDX Compatibility=1;Safety Options=2;
+      MDX Missing Member Mode=Error;
+      Identity Provider=https://login.microsoftonline.com/common, https://analysis.windows.net/powerbi/api, 929d0ec0-7a41-4b1e-bc7c-b754a28bddcc;
+      Update Isolation Level=2</odc:ConnectionString>
+      <odc:CommandType>Default</odc:CommandType>
+      <odc:CommandText>
+        ${daxQuery()}
+      </odc:CommandText>
+    </odc:Connection>
+  </odc:OfficeDataConnection>
+</xml>
+</head>
+</html>`;
+    }
+    const process = function (event) {
+        if (
+            table_param === null
+        ) {
+            OutputText.innerHTML = 'Missing parameter: table';
+            return;
+        } else if (
+            datasetID_param === null
+        ) {
+            OutputText.innerHTML = 'Missing parameter: datasetID';
+            return;
+        } else if (
+            !datasetIDregex.test(datasetID_param)
+        ) {
+            OutputText.innerHTML = 'Wrong datasetID format';
+            return;
+        } else {
+            download("PowerBItable.odc", getFileText());
+        };
+    }
+    window.onload = function () {
+        ;
+        process();
+    };
+
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
+</script>
