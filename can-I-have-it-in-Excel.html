@@ -16,16 +16,28 @@
 
 <body>
     <div id="result" class="">
-        <p id="OutputText"></p></a>
+        <p id="OutputText"></p>
     </div>
+    <p><br> Instructions on <a href="https://littlebigfrog.xyz/can-i-have-it-in-excel-tool">littlebigfrog.xyz</a></p>
+    <p><br> Source code on <a href="https://github.com/LittleBigFrog/LittleBigFrog.github.io/blob/main/can-I-have-it-in-Excel.html">GitHub</a></p>
     <script>
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        const datasetID_param = urlParams.get('datasetID')
+        const datasetID_param = urlParams.get('datasetID');
         const datasetIDregex = /^(\w{8})-(\w{4})-(\w{4})-(\w{4})-(\w{12})$/;
-        const table_param = urlParams.get('table')
+        const table_param = urlParams.get('table');
+        const name_param = urlParams.get('name');
         const result = document.getElementById('result');
         const OutputText = document.getElementById('OutputText');
+        const fileName = function () {
+            let result;
+            if (name_param === null) {
+                result = "PowerBI_table.odc";
+            } else {
+                result = `${name_param}.odc`;
+            }
+            return result;
+        }
         const daxQuery = function () {
             let result;
             if (table_param.toLowerCase().includes("evaluate") == true) {
@@ -87,8 +99,9 @@
                 OutputText.innerHTML = 'Wrong datasetID format';
                 return;
             } else {
+                OutputText.innerHTML = 'Downloading the Ecxel connection file. You can close the window.';
                 download("PowerBItable.odc", getFileText());
-                window.close();
+                // window.close(); Can't close window
             };
         }
         window.onload = function () {
