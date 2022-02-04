@@ -43,7 +43,7 @@
             if (table_param.toLowerCase().includes("evaluate") == true) {
                 result = table_param.replace(/\n/g, "&#10;&#13;");
             } else {
-                result = 'evaluate ' + table_param.replace(/\n/g, "&#10;&#13;");
+                result = "evaluate '" + table_param.replace(/\n/g, "&#10;&#13;") + "'";
             }
             return result;
         }
@@ -99,7 +99,7 @@
                 OutputText.innerHTML = 'Wrong datasetID format';
                 return;
             } else {
-                OutputText.innerHTML = 'Downloading the Ecxel connection file. You can close the window.';
+                OutputText.innerHTML = 'Downloading the Excel connection file. You can close the window.';
                 download(fileName(), getFileText());
                 // window.close(); Can't close window
             };
